@@ -1,0 +1,9 @@
+Java Implementation of scrypt
+
+  An implementation of the scrypt KDF in Java. This code is based in
+  large part on Colin Percival's reference implementation contained in
+  scrypt-1.1.6/lib/crypto/crypto_scrypt-ref.c, but any errors in this
+  port are solely the fault of its author, Will Glozer.
+
+  http://www.tarsnap.com/scrypt/scrypt-1.1.6.tgz
+  http://www.tarsnap.com/scrypt/scrypt.pdf
