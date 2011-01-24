@@ -71,13 +71,13 @@ public class SCryptTest {
         scrypt(P, S, N, r, 1, 64);
     }
 
-    @Test(expected = IllegalArgumentException.class)
-    public void scrypt_invalid_r_large() throws Exception {
-        byte[] P = "pleaseletmein".getBytes("UTF-8");
-        byte[] S = "SodiumChloride".getBytes("UTF-8");
-        int    N = 1024;
-        int    r = Integer.MAX_VALUE / 128 + 1;
-        int    p = 0;
-        scrypt(P, S, N, r, p, 64);
-    }
+//    @Test(expected = IllegalArgumentException.class)
+//    public void scrypt_invalid_r_large() throws Exception {
+//        byte[] P = "pleaseletmein".getBytes("UTF-8");
+//        byte[] S = "SodiumChloride".getBytes("UTF-8");
+//        int    N = 1024;
+//        int    r = Integer.MAX_VALUE / 128 + 1;
+//        int    p = 0;
+//        scrypt(P, S, N, r, p, 64);
+//    }
 }
