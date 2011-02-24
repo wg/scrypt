@@ -1,7 +1,7 @@
 Java Implementation of scrypt
 
   A pure Java implementation of the scrypt key derivation function,
-  and JNI bindings for the optimized C implementation.
+  and JNI bindings for the SSE-optimized C implementation.
 
   The Java implementation is based in large part on Colin Percival's
   reference implementation contained in
@@ -11,11 +11,38 @@ Java Implementation of scrypt
   http://www.tarsnap.com/scrypt/scrypt-1.1.6.tgz
   http://www.tarsnap.com/scrypt/scrypt.pdf
 
+Usage
+
+  com.lambdaworks.crypto.SCryptUtil implements a modified version of MCF,
+  the modular crypt format, similar to the one used for storage of Unix
+  passwords in the MD5, SHA-256, and bcrypt formats.
+
+    SCryptUtil.scrypt(passwd, N, r, p)
+    SCryptUtil.check(passwd, hashed)
+
+  The output of SCryptUtil.scrypt is a string in the modified MCF format:
+
+  $s0$PARAMS$SALT$KEY
+
+  s0     - version 0 of the format with 128-bit salt and 256-bit derived key
+  PARAMS - 32-bit hex integer containing log2(N) (16 bits), r (8 bits), and p (8 bits)
+  SALT   - base64-encoded salt
+  KEY    - base64-encoded derived key
+
+  Example:
+
+    $s0$e0801$epIxT/h6HbbwHaehFnh/bw==$7H0vsXlY8UxxyW/BWx/9GuY7jEvGjT71GFd6O4SZND0=
+
+    passwd = "secret"
+         N = 16384
+         r = 8
+         p = 1
+
 Native Code Implementation
 
-  The native/ directory contains the SSE-optimized C implementation of
-  scrypt along with JNI bindings and can be built with the usual
+  The native/ directory contains the SSE-optimized C implementation of scrypt
+  along with JNI bindings and can be built with the usual autotools
   ./configure && make
 
-  When the native library can be loaded it will be used instead of
-  the pure Java implementation.
+  When the native library can be loaded it will be used instead of the pure
+  Java implementation.

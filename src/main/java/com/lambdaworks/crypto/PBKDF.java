@@ -7,6 +7,13 @@ import javax.crypto.spec.SecretKeySpec;
 import java.security.GeneralSecurityException;
 import static java.lang.System.arraycopy;
 
+/**
+ * An implementation of the Password-Based Key Derivation Function as specified
+ * in RFC 2898.
+ *
+ * @author  Will Glozer
+ * @version 1.0
+ */
 public class PBKDF {
     /**
      * Implementation of PBKDF2 (RFC2898).
@@ -37,8 +44,6 @@ public class PBKDF {
      * @param   c       Iteration count.
      * @param   DK      Byte array that derived key will be placed in.
      * @param   dkLen   Intended length, in octets, of the derived key.
-     *
-     * @return  The derived key.
      *
      * @throws  GeneralSecurityException
      */

@@ -9,16 +9,18 @@ import java.security.SecureRandom;
 import static com.lambdaworks.crypto.Base64.*;
 
 /**
- * Simple {@link SCrypt} interface for hashing passwords and comparing a plain text password
- * to a hashed one. The hashed output is an extended implementation of the Modular Crypt
- * Format that also includes the scrypt algorithm parameters.
+ * Simple {@link SCrypt} interface for hashing passwords using the
+ * <a href="http://www.tarsnap.com/scrypt.html">scrypt</a> key derivation fuction
+ * and comparing a plain text password to a hashed one. The hashed output is an
+ * extended implementation of the Modular Crypt Format that also includes the scrypt
+ * algorithm parameters.
  *
  * Format: <code>$s0$PARAMS$SALT$KEY</code>.
  *
  * <dl>
- * <dd>PARAMS</dd><dt>32 bit hex integer containing log2(N) (16 bits), r (8 bits), and p (8 bits)</dt>
- * <dd>SALT</dd><dt>base64 encoded salt</dt>
- * <dd>KEY</dd><dt>base64 encoded derived key</dt>
+ * <dd>PARAMS</dd><dt>32-bit hex integer containing log2(N) (16 bits), r (8 bits), and p (8 bits)</dt>
+ * <dd>SALT</dd><dt>base64-encoded salt</dt>
+ * <dd>KEY</dd><dt>base64-encoded derived key</dt>
  * </dl>
  *
  * <code>s0</code> identifies version 0 of the scrypt format, using a 128-bit salt and 256-bit derived key.

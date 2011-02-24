@@ -10,11 +10,11 @@ import static java.lang.System.arraycopy;
 import static java.lang.Integer.MAX_VALUE;
 
 /**
- * An interface to the <a href="http://www.tarsnap.com/scrypt/scrypt.pdf"/>scrypt</a>
- * key derivation function. This implementation will attempt to load a native library
+ * An implementation of the <a href="http://www.tarsnap.com/scrypt/scrypt.pdf"/>scrypt</a>
+ * key derivation function. This class will attempt to load a native library
  * containing the optimized C implementation from
  * <a href="http://www.tarsnap.com/scrypt.html">http://www.tarsnap.com/scrypt.html<a> and
- * fall back to a pure Java implementation if that fails.
+ * fall back to the pure Java version if that fails.
  *
  * @author  Will Glozer
  * @version 1.0
@@ -33,7 +33,7 @@ public class SCrypt {
 
     /**
      * Implementation of the <a href="http://www.tarsnap.com/scrypt/scrypt.pdf"/>scrypt KDF</a>.
-     * Calls the native implementation {@link #scryptN} }when the native library was successfully
+     * Calls the native implementation {@link #scryptN} when the native library was successfully
      * loaded, otherwise calls {@link #scryptJ}.
      *
      * @param passwd    Password.
