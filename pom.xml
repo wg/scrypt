@@ -9,6 +9,25 @@
 
   <packaging>jar</packaging>
 
+  <name>scrypt</name>
+  <description>Java implementation of scrypt</description>
+  <url>http://github.com/wg/scrypt</url>
+
+  <licenses>
+    <license>
+      <name>Apache License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <developers>
+    <developer>
+      <id>will</id>
+      <name>Will Glozer</name>
+    </developer>
+  </developers>
+
   <dependencies>
    <dependency>
      <groupId>junit</groupId>
@@ -42,9 +61,47 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <configuration>
           <useFile>false</useFile>
-          <argLine>-Xmx2G -Xms512M</argLine>
+          <argLine>-Xmx2G -Xms512M -Djava.library.path=native/.libs</argLine>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-gpg-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>sign-artifacts</id>
+            <phase>verify</phase>
+            <goals>
+              <goal>sign</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
     </plugins>
   </build>
+
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+  </properties>
+
+  <scm>
+    <connection>scm:git:git://github.com/wg/scrypt.git</connection>
+    <developerConnection>scm:git:git://github.com/wg/scrypt.git</developerConnection>
+    <url>http://github.com/wg/scrypt</url>
+  </scm>
+
+  <distributionManagement>
+    <snapshotRepository>
+      <id>sonatype-nexus-snapshots</id>
+      <name>Sonatype Nexus Snapshots</name>
+      <url>https://oss.sonatype.org/content/repositories/snapshots/</url>
+    </snapshotRepository>
+
+    <repository>
+      <id>sonatype-nexus-staging</id>
+      <name>Nexus Release Repository</name>
+      <url>https://oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+    </repository>
+  </distributionManagement>
 </project>
