@@ -22,12 +22,12 @@ Usage
 
   The output of SCryptUtil.scrypt is a string in the modified MCF format:
 
-  $s0$PARAMS$SALT$KEY
+  $s0$params$salt$key
 
   s0     - version 0 of the format with 128-bit salt and 256-bit derived key
-  PARAMS - 32-bit hex integer containing log2(N) (16 bits), r (8 bits), and p (8 bits)
-  SALT   - base64-encoded salt
-  KEY    - base64-encoded derived key
+  params - 32-bit hex integer containing log2(N) (16 bits), r (8 bits), and p (8 bits)
+  salt   - base64-encoded salt
+  key    - base64-encoded derived key
 
   Example:
 
@@ -37,6 +37,17 @@ Usage
          N = 16384
          r = 8
          p = 1
+
+Maven Artifacts
+
+  Releases of the pure Java implementation are available in the maven central
+  repository.
+
+  <dependency>
+    <groupId>com.lambdaworks</groupId>
+    <artifactId>scrypt</artifactId>
+    <version>1.0</version>
+  </dependency>
 
 Native Code Implementation
 
