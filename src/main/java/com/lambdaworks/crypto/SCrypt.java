@@ -2,12 +2,14 @@
 
 package com.lambdaworks.crypto;
 
+import com.lambdaworks.jni.JarLibraryLoader;
+
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.GeneralSecurityException;
 
-import static java.lang.System.arraycopy;
 import static java.lang.Integer.MAX_VALUE;
+import static java.lang.System.arraycopy;
 
 /**
  * An implementation of the <a href="http://www.tarsnap.com/scrypt/scrypt.pdf"/>scrypt</a>
@@ -17,18 +19,13 @@ import static java.lang.Integer.MAX_VALUE;
  * fall back to the pure Java version if that fails.
  *
  * @author  Will Glozer
- * @version 1.0
  */
 public class SCrypt {
     private static boolean native_library_loaded = false;
 
     static {
-        try {
-            System.loadLibrary("scrypt");
-            native_library_loaded = true;
-        } catch (Throwable e) {
-            // ignore it
-        }
+        JarLibraryLoader loader = new JarLibraryLoader();
+        native_library_loaded = loader.load("libscrypt", false);
     }
 
     /**

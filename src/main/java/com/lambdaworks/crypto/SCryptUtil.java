@@ -26,7 +26,6 @@ import static com.lambdaworks.crypto.Base64.*;
  * <code>s0</code> identifies version 0 of the scrypt format, using a 128-bit salt and 256-bit derived key.
  *
  * @author  Will Glozer
- * @version 1.0
  */
 public class SCryptUtil {
     /**

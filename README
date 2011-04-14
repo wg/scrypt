@@ -40,13 +40,13 @@ Usage
 
 Maven Artifacts
 
-  Releases of the pure Java implementation are available in the maven central
-  repository.
+  Releases containing the pure Java implementation, as well as native libraries
+  for a limited number of platforms, are available in the maven central repository.
 
   <dependency>
     <groupId>com.lambdaworks</groupId>
     <artifactId>scrypt</artifactId>
-    <version>1.0</version>
+    <version>1.1.0</version>
   </dependency>
 
 Native Code Implementation

@@ -12,7 +12,6 @@ import static java.lang.System.arraycopy;
  * in RFC 2898.
  *
  * @author  Will Glozer
- * @version 1.0
  */
 public class PBKDF {
     /**

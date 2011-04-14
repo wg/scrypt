@@ -5,7 +5,7 @@
 
   <groupId>com.lambdaworks</groupId>
   <artifactId>scrypt</artifactId>
-  <version>1.0</version>
+  <version>1.1.0</version>
 
   <packaging>jar</packaging>
 
@@ -40,8 +40,9 @@
   <build>
     <plugins>
       <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
         <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>2.3.2</version>
         <configuration>
           <source>1.6</source>
           <target>1.6</target>
@@ -51,6 +52,7 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-resources-plugin</artifactId>
+        <version>2.5</version>
         <configuration>
           <encoding>UTF-8</encoding>
         </configuration>
@@ -59,15 +61,33 @@
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
+        <version>2.8</version>
+
         <configuration>
           <useFile>false</useFile>
-          <argLine>-Xmx2G -Xms512M -Djava.library.path=native/.libs</argLine>
+          <argLine>-Xmx2G -Xms512M</argLine>
         </configuration>
+
+        <executions>
+          <execution>
+            <id>integration-test</id>
+            <phase>integration-test</phase>
+            <configuration>
+              <classesDirectory>
+                ${project.build.directory}/${project.build.finalName}.${project.packaging}
+              </classesDirectory>
+            </configuration>
+            <goals>
+              <goal>test</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-gpg-plugin</artifactId>
+        <version>1.1</version>
         <executions>
           <execution>
             <id>sign-artifacts</id>
