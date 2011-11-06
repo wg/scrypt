@@ -25,7 +25,7 @@ public class SCrypt {
 
     static {
         JarLibraryLoader loader = new JarLibraryLoader();
-        native_library_loaded = loader.load("libscrypt", false);
+        native_library_loaded = loader.load("libscrypt", true);
     }
 
     /**
