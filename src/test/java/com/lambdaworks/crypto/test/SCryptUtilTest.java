@@ -1,7 +1,10 @@
 // Copyright (C) 2011 - Will Glozer.  All rights reserved.
 
-package com.lambdaworks.crypto;
+package com.lambdaworks.crypto.test;
 
+import com.lambdaworks.crypto.Base64;
+import com.lambdaworks.crypto.SCryptUtil;
+import org.junit.Assert;
 import org.junit.Test;
 import static org.junit.Assert.*;
 
@@ -17,7 +20,7 @@ public class SCryptUtilTest {
 
         assertEquals(5, parts.length);
         assertEquals("s0", parts[1]);
-        assertEquals(16, Base64.decodeFast(parts[3]).length);
+        Assert.assertEquals(16, Base64.decodeFast(parts[3]).length);
         assertEquals(32, Base64.decodeFast(parts[4]).length);
 
         int params = Integer.valueOf(parts[2], 16);

@@ -1,6 +1,6 @@
 // Copyright (C) 2011 - Will Glozer.  All rights reserved.
 
-package com.lambdaworks.crypto;
+package com.lambdaworks.crypto.test;
 
 public class CryptoTestUtil {
     public static byte[] decode(String str) {

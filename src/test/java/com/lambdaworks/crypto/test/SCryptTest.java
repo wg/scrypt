@@ -1,11 +1,12 @@
 // Copyright (C) 2011 - Will Glozer.  All rights reserved.
 
-package com.lambdaworks.crypto;
+package com.lambdaworks.crypto.test;
 
+import com.lambdaworks.crypto.SCrypt;
 import org.junit.Test;
 
 import static org.junit.Assert.*;
-import static com.lambdaworks.crypto.CryptoTestUtil.*;
+import static com.lambdaworks.crypto.test.CryptoTestUtil.*;
 import static com.lambdaworks.crypto.SCrypt.*;
 
 public class SCryptTest {

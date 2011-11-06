@@ -1,13 +1,14 @@
 // Copyright (C) 2011 - Will Glozer.  All rights reserved.
 
-package com.lambdaworks.crypto;
+package com.lambdaworks.crypto.test;
 
+import com.lambdaworks.crypto.PBKDF;
 import org.junit.Test;
 
 import java.math.BigInteger;
 
 import static org.junit.Assert.*;
-import static com.lambdaworks.crypto.CryptoTestUtil.*;
+import static com.lambdaworks.crypto.test.CryptoTestUtil.*;
 
 public class PBKDFTest {
     @Test
