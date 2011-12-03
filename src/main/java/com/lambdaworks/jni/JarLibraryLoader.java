@@ -19,7 +19,6 @@ import java.util.jar.JarFile;
 public class JarLibraryLoader {
     private final CodeSource codeSource;
     private final String libraryPath;
-    private final Platform platform;
 
     /**
      * Initialize a new instance that looks for shared libraries located in the same jar
@@ -35,13 +34,10 @@ public class JarLibraryLoader {
      *
      * @param codeSource    Code source containing shared libraries.
      * @param libraryPath   Path prefix of shared libraries.
-     *
-     * @throws UnsupportedPlatformException when the platform cannot be detected.
      */
-    public JarLibraryLoader(CodeSource codeSource, String libraryPath) throws UnsupportedPlatformException {
+    public JarLibraryLoader(CodeSource codeSource, String libraryPath) {
         this.codeSource  = codeSource;
         this.libraryPath = libraryPath;
-        this.platform    = Platform.detect();
     }
 
     /**
@@ -56,9 +52,10 @@ public class JarLibraryLoader {
         boolean loaded = false;
 
         try {
+            Platform platform = Platform.detect();
             JarFile jar = new JarFile(codeSource.getLocation().getPath(), verify);
             try {
-                for (String path : libCandidates(name)) {
+                for (String path : libCandidates(platform, name)) {
                     JarEntry entry = jar.getJarEntry(path);
                     if (entry == null) continue;
 
@@ -72,7 +69,7 @@ public class JarLibraryLoader {
             } finally {
                 jar.close();
             }
-        } catch (Exception e) {
+        } catch (Throwable e) {
             loaded = false;
         }
 
@@ -115,11 +112,12 @@ public class JarLibraryLoader {
      * Generate a list of candidate libraries for the supplied library name and suitable
      * for the current platform.
      *
-     * @param name  Library name.
+     * @param platform  Current platform.
+     * @param name      Library name.
      *
      * @return List of potential library names.
      */
-    private List<String> libCandidates(String name) {
+    private List<String> libCandidates(Platform platform, String name) {
         List<String> candidates = new ArrayList<String>();
         StringBuilder sb = new StringBuilder();
 
