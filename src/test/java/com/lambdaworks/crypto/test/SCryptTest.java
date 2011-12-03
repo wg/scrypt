@@ -28,6 +28,11 @@ public class SCryptTest {
 
         assertArrayEquals(decode(DK), SCrypt.scrypt(P, S, N, r, p, dkLen));
 
+        // verify that all arrays are initialized in the algorithm and no bits survive each round
+    	SCrypt sc = new SCrypt(N,r,p);
+        assertArrayEquals(decode(DK), sc.scrypt(P, S, dkLen));
+        assertArrayEquals(decode(DK), sc.scrypt(P, S, dkLen));
+    	
         P = "pleaseletmein".getBytes("UTF-8");
         S = "SodiumChloride".getBytes("UTF-8");
         N = 16384;

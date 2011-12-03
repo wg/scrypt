@@ -3,10 +3,12 @@
 package com.lambdaworks.crypto;
 
 import com.lambdaworks.jni.JarLibraryLoader;
+import com.lambdaworks.jni.UnsupportedPlatformException;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
 
 import static java.lang.Integer.MAX_VALUE;
 import static java.lang.System.arraycopy;
@@ -24,11 +26,51 @@ public class SCrypt {
     private static boolean native_library_loaded = false;
 
     static {
-        JarLibraryLoader loader = new JarLibraryLoader();
-        native_library_loaded = loader.load("libscrypt", true);
+        try {
+            JarLibraryLoader loader = new JarLibraryLoader();
+            native_library_loaded = loader.load("libscrypt", true);
+        } catch (UnsupportedPlatformException e) {
+            // windows, etc
+        }
     }
 
+    private final int N;
+    private final int r;
+    private final int p;
+    private final Mac mac;
+    
+    private final byte[] B;
+    private final byte[] XY;
+    private final byte[] V;
+    
     /**
+     * Allocates working memory for computing hash. Operating in a nearly constant memory profile can significantly
+     * improve performance in a JVM.
+     *
+     * @param N         CPU cost parameter.
+     * @param r         Memory cost parameter.
+     * @param p         Parallelization parameter.
+     *
+     * @throws GeneralSecurityException when HMAC_SHA256 is not available.
+     */
+    public SCrypt(int N, int r, int p) throws NoSuchAlgorithmException {
+        if (N == 0 || (N & (N - 1)) != 0) throw new IllegalArgumentException("N must be > 0 and a power of 2");
+
+        if (N > MAX_VALUE / 128 / r) throw new IllegalArgumentException("Parameter N is too large");
+        if (r > MAX_VALUE / 128 / p) throw new IllegalArgumentException("Parameter r is too large");
+        
+        mac = Mac.getInstance("HmacSHA256");
+        
+        this.N = N;
+        this.r = r;
+        this.p = p;
+
+        B = new byte[128 * r * p];
+        XY = new byte[256 * r];
+        V  = new byte[128 * r * N];
+    }
+
+	/**
      * Implementation of the <a href="http://www.tarsnap.com/scrypt/scrypt.pdf"/>scrypt KDF</a>.
      * Calls the native implementation {@link #scryptN} when the native library was successfully
      * loaded, otherwise calls {@link #scryptJ}.
@@ -78,24 +120,23 @@ public class SCrypt {
      * @throws GeneralSecurityException when HMAC_SHA256 is not available.
      */
     public static byte[] scryptJ(byte[] passwd, byte[] salt, int N, int r, int p, int dkLen) throws GeneralSecurityException {
-        if (N == 0 || (N & (N - 1)) != 0) throw new IllegalArgumentException("N must be > 0 and a power of 2");
-
-        if (N > MAX_VALUE / 128 / r) throw new IllegalArgumentException("Parameter N is too large");
-        if (r > MAX_VALUE / 128 / p) throw new IllegalArgumentException("Parameter r is too large");
-
-        Mac mac = Mac.getInstance("HmacSHA256");
+        SCrypt sc = new SCrypt(N,r,p);
+        return sc.scrypt(passwd, salt, dkLen);
+    }
+    
+    public byte[] scrypt(byte[] passwd, byte[] salt, int dkLen) throws GeneralSecurityException {
+    
         mac.init(new SecretKeySpec(passwd, "HmacSHA256"));
 
         byte[] DK = new byte[dkLen];
 
-        byte[] B  = new byte[128 * r * p];
-        byte[] XY = new byte[256 * r];
-        byte[] V  = new byte[128 * r * N];
         int i;
 
+        // B overwritten here
         PBKDF.pbkdf2(mac, salt, 1, B, p * 128 * r);
 
         for (i = 0; i < p; i++) {
+            // XY, V overwritten in parts
             smix(B, i * 128 * r, r, N, V, XY);
         }
 
@@ -105,35 +146,41 @@ public class SCrypt {
     }
 
     public static void smix(byte[] B, int Bi, int r, int N, byte[] V, byte[] XY) {
+        byte[] X = new byte[64];
+        int[] B32 = new int[16];
+        int[] x   = new int[16];
+        
         int Xi = 0;
         int Yi = 128 * r;
         int i;
 
+        // XY overwritten in parts
         arraycopy(B, Bi, XY, Xi, 128 * r);
 
         for (i = 0; i < N; i++) {
+            // V overwritten in parts
             arraycopy(XY, Xi, V, i * (128 * r), 128 * r);
-            blockmix_salsa8(XY, Xi, Yi, r);
+            blockmix_salsa8(XY, Xi, Yi, r, X, B32, x);
         }
 
         for (i = 0; i < N; i++) {
             int j = integerify(XY, Xi, r) & (N - 1);
             blockxor(V, j * (128 * r), XY, Xi, 128 * r);
-            blockmix_salsa8(XY, Xi, Yi, r);
+            blockmix_salsa8(XY, Xi, Yi, r, X, B32, x);
         }
 
         arraycopy(XY, Xi, B, Bi, 128 * r);
     }
 
-    public static void blockmix_salsa8(byte[] BY, int Bi, int Yi, int r) {
-        byte[] X = new byte[64];
+    public static void blockmix_salsa8(byte[] BY, int Bi, int Yi, int r, byte[] X, int[] B32, int[] x) {
         int i;
 
+        // X initialized
         arraycopy(BY, Bi + (2 * r - 1) * 64, X, 0, 64);
 
         for (i = 0; i < 2 * r; i++) {
             blockxor(BY, i * 64, X, 0, 64);
-            salsa20_8(X);
+            salsa20_8(X,B32,x);
             arraycopy(X, 0, BY, Yi + (i * 64), 64);
         }
 
@@ -150,11 +197,10 @@ public class SCrypt {
         return (a << b) | (a >>> (32 - b));
     }
 
-    public static void salsa20_8(byte[] B) {
-        int[] B32 = new int[16];
-        int[] x   = new int[16];
+    public static void salsa20_8(byte[] B, int[] B32, int[] x) {
         int i;
 
+        // B32 initialized
         for (i = 0; i < 16; i++) {
             B32[i]  = (B[i * 4 + 0] & 0xff) << 0;
             B32[i] |= (B[i * 4 + 1] & 0xff) << 8;
@@ -162,6 +208,7 @@ public class SCrypt {
             B32[i] |= (B[i * 4 + 3] & 0xff) << 24;
         }
 
+        // x initialized
         arraycopy(B32, 0, x, 0, 16);
 
         for (i = 8; i > 0; i -= 2) {
