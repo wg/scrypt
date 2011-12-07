@@ -20,39 +20,39 @@ public class JarLibraryLoaderTest extends AbstractPlatformDetectionTest {
     @Test
     public void loadSigned() throws Exception {
         JarLibraryLoader loader = jarLibraryLoader("native-libs-signed");
-        assertTrue(loader.load("libscrypt", true));
+        assertTrue(loader.load("scrypt", true));
     }
 
     @Test
     public void loadUnsigned() throws Exception {
         JarLibraryLoader loader = jarLibraryLoader("native-libs-unsigned");
-        assertTrue(loader.load("libscrypt", false));
+        assertTrue(loader.load("scrypt", false));
     }
     @Test
     public void loadVerifyBadSig() throws Exception {
         JarLibraryLoader loader = jarLibraryLoader("native-libs-badsig");
-        assertFalse(loader.load("libscrypt", true));
+        assertFalse(loader.load("scrypt", true));
     }
 
     @Test
     public void loadUnsupportedPlatform() throws Exception {
         setPlatform("PA-RISC", "MPE/iX");
         JarLibraryLoader loader = jarLibraryLoader("native-libs-signed");
-        assertFalse(loader.load("libscrypt", true));
+        assertFalse(loader.load("scrypt", true));
     }
 
     @Test
     public void loadWrongPlatform() throws Exception {
-        String os = getProperty("os.name").equals("linux") ? "freebsd" : "linux";
+        String os = getProperty("os.name").equals("Linux") ? "Darwin" : "Linux";
         setPlatform("x86_64", os);
         JarLibraryLoader loader = jarLibraryLoader("native-libs-signed");
-        assertFalse(loader.load("libscrypt", true));
+        assertFalse(loader.load("scrypt", true));
     }
 
     @Test
     public void loadInvalidEntry() throws Exception {
         JarLibraryLoader loader = jarLibraryLoader("native-libs-invalid");
-        assertFalse(loader.load("libscrypt", true));
+        assertFalse(loader.load("scrypt", true));
     }
 
     protected JarLibraryLoader jarLibraryLoader(String name) throws Exception {

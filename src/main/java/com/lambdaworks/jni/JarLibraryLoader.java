@@ -14,15 +14,18 @@ import java.util.jar.JarFile;
  * This loader will attempt to detect the {@link Platform platform} (CPU architecture and OS)
  * it is running on and load the appropriate shared library.
  *
+ * Given a library path and name this loader looks for a native library with path
+ * [libraryPath]/[arch]/[os]/lib[name].[ext]
+ *
  * @author Will Glozer
  */
-public class JarLibraryLoader {
+public class JarLibraryLoader implements LibraryLoader {
     private final CodeSource codeSource;
     private final String libraryPath;
 
     /**
      * Initialize a new instance that looks for shared libraries located in the same jar
-     * as this class and with a path starting with <code>lib/</code>.
+     * as this class and with a path starting with {@code lib}.
      */
     public JarLibraryLoader() {
         this(JarLibraryLoader.class.getProtectionDomain().getCodeSource(), "lib");
@@ -124,7 +127,7 @@ public class JarLibraryLoader {
         sb.append(libraryPath).append("/");
         sb.append(platform.arch).append("/");
         sb.append(platform.os).append("/");
-        sb.append(name);
+        sb.append("lib").append(name);
 
         switch (platform.os) {
             case darwin:

@@ -2,7 +2,7 @@
 
 package com.lambdaworks.crypto;
 
-import com.lambdaworks.jni.JarLibraryLoader;
+import com.lambdaworks.jni.*;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
@@ -21,11 +21,11 @@ import static java.lang.System.arraycopy;
  * @author  Will Glozer
  */
 public class SCrypt {
-    private static boolean native_library_loaded = false;
+    private static final boolean native_library_loaded;
 
     static {
-        JarLibraryLoader loader = new JarLibraryLoader();
-        native_library_loaded = loader.load("libscrypt", true);
+        LibraryLoader loader = LibraryLoaders.loader();
+        native_library_loaded = loader.load("scrypt", true);
     }
 
     /**
@@ -61,7 +61,7 @@ public class SCrypt {
      *
      * @return The derived key.
      */
-    public static native byte[] scryptN(byte[] passwd, byte[] salt, long N, int r, int p, int dkLen);
+    public static native byte[] scryptN(byte[] passwd, byte[] salt, int N, int r, int p, int dkLen);
 
     /**
      * Pure Java implementation of the <a href="http://www.tarsnap.com/scrypt/scrypt.pdf"/>scrypt KDF</a>.

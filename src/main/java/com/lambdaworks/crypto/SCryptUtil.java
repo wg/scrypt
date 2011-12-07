@@ -10,7 +10,7 @@ import static com.lambdaworks.crypto.Base64.*;
 
 /**
  * Simple {@link SCrypt} interface for hashing passwords using the
- * <a href="http://www.tarsnap.com/scrypt.html">scrypt</a> key derivation fuction
+ * <a href="http://www.tarsnap.com/scrypt.html">scrypt</a> key derivation function
  * and comparing a plain text password to a hashed one. The hashed output is an
  * extended implementation of the Modular Crypt Format that also includes the scrypt
  * algorithm parameters.

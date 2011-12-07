@@ -26,12 +26,12 @@ public class AbstractPlatformDetectionTest {
     }
 
     protected Platform detectArch(String arch) {
-        setProperty("os.arch", arch);
+        setPlatform(arch, "Linux");
         return Platform.detect();
     }
 
     protected Platform detectOs(String os) {
-        setProperty("os.name", os);
+        setPlatform("x86_64", os);
         return Platform.detect();
     }
 
