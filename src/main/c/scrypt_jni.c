@@ -4,11 +4,10 @@
 #include <stdlib.h>
 #include <inttypes.h>
 
+#include <jni.h>
 #include "crypto_scrypt.h"
-#include "scrypt_jni.h"
 
-JNIEXPORT jbyteArray JNICALL Java_com_lambdaworks_crypto_SCrypt_scryptN(
-    JNIEnv *env, jclass cls, jbyteArray passwd, jbyteArray salt,
+jbyteArray JNICALL scryptN(JNIEnv *env, jclass cls, jbyteArray passwd, jbyteArray salt,
     jint N, jint r, jint p, jint dkLen)
 {
     jint Plen = (*env)->GetArrayLength(env, passwd);
@@ -17,12 +16,10 @@ JNIEXPORT jbyteArray JNICALL Java_com_lambdaworks_crypto_SCrypt_scryptN(
     jbyte *S = (*env)->GetByteArrayElements(env, salt,   NULL);
     uint8_t *buf = malloc(sizeof(uint8_t) * dkLen);
     jbyteArray DK = NULL;
-    int rc;
 
     if (P == NULL || S == NULL || buf == NULL) goto cleanup;
 
-    rc = crypto_scrypt((uint8_t *) P, Plen, (uint8_t *) S, Slen, N, r, p, buf, dkLen);
-    if (rc != 0) {
+    if (crypto_scrypt((uint8_t *) P, Plen, (uint8_t *) S, Slen, N, r, p, buf, dkLen)) {
         jclass e = (*env)->FindClass(env, "java/lang/IllegalArgumentException");
         char *msg;
         switch (errno) {
@@ -54,6 +51,19 @@ JNIEXPORT jbyteArray JNICALL Java_com_lambdaworks_crypto_SCrypt_scryptN(
     return DK;
 }
 
+static const JNINativeMethod methods[] = {
+    { "scryptN", "([B[BIIII)[B", (void *) scryptN }
+};
+
 jint JNI_OnLoad(JavaVM *vm, void *reserved) {
-    return JNI_VERSION_1_6;
+    JNIEnv *env;
+
+    if ((*vm)->GetEnv(vm, (void **) &env, JNI_VERSION_1_6) != JNI_OK) {
+        return -1;
+    }
+
+    jclass cls = (*env)->FindClass(env, "com/lambdaworks/crypto/SCrypt");
+    int r = (*env)->RegisterNatives(env, cls, methods, 1);
+
+    return (r == JNI_OK) ? JNI_VERSION_1_6 : -1;
 }

@@ -1,12 +1,11 @@
-Java Implementation of scrypt
+Java implementation of scrypt
 
-  A pure Java implementation of the scrypt key derivation function,
-  and JNI bindings for the SSE-optimized C implementation.
+  A pure Java implementation of the scrypt key derivation function and a JNI
+  interface to the C implementations, including the SSE2 optimized version.
 
   The Java implementation is based in large part on Colin Percival's
-  reference implementation contained in
-  scrypt-1.1.6/lib/crypto/crypto_scrypt-ref.c, but any errors in this
-  port are solely the fault of its author, Will Glozer.
+  reference implementation contained in crypto_scrypt-ref.c, but any errors
+  in this port are solely the fault of its author, Will Glozer.
 
   http://www.tarsnap.com/scrypt/scrypt-1.1.6.tgz
   http://www.tarsnap.com/scrypt/scrypt.pdf
@@ -46,20 +45,24 @@ Maven Artifacts
   <dependency>
     <groupId>com.lambdaworks</groupId>
     <artifactId>scrypt</artifactId>
-    <version>1.3.0</version>
+    <version>1.3.1</version>
   </dependency>
 
 Native Code Implementation
 
-  The native/ directory contains the SSE-optimized C implementation of scrypt
-  along with JNI bindings and can be built with the usual autotools
-  ./configure && make
+  A native shared library for the current platform may be built by running GNU
+  make. The Makefile attempts to detect the runtime platform and JDK location,
+  but in some cases one or more of the following variables should be passed
+  to make:
+
+  TARGET    - target operating system, use "android" to build for Android
+  SSE2      - use the SSE2 optimized scrypt implementation when set
+  JAVA_HOME - base directory of a Java 6+ JDK
+  NDK_ROOT  - base directory of Android NDK
 
   When the native library can be loaded it will be used instead of the pure
   Java implementation.
 
-Android
-
-  A precompiled native library for Android 2.3 running on ARMv7 is located in
-  src/android/resources/lib/arm7/libscrypt.so. If placed in your .apk file's
-  lib/{armeabi,armeabi-v7a} directory it will be automatically loaded.
+  A precompiled native library for Android 2.3 running on ARM is located in
+  src/android/resources/lib/arm5/libscrypt.so. If placed in an .apk file's
+  lib/armeabi directory it will be automatically loaded.
