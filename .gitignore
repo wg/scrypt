@@ -1,11 +1,2 @@
 target/
-autom4te.cache/
-config.h
-config.status
-config.log
-libtool
-stamp-h1
 *.o
-*.l[oa]
-*.deps
-*.libs
