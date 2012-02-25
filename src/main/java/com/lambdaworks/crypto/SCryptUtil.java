@@ -6,7 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 
-import static com.lambdaworks.crypto.Base64.*;
+import static com.lambdaworks.codec.Base64.*;
 
 /**
  * Simple {@link SCrypt} interface for hashing passwords using the
@@ -50,8 +50,8 @@ public class SCryptUtil {
 
             StringBuilder sb = new StringBuilder((salt.length + derived.length) * 2);
             sb.append("$s0$").append(params).append('$');
-            sb.append(encodeToChar(salt, false)).append('$');
-            sb.append(encodeToChar(derived, false));
+            sb.append(encode(salt)).append('$');
+            sb.append(encode(derived));
 
             return sb.toString();
         } catch (UnsupportedEncodingException e) {
@@ -78,8 +78,8 @@ public class SCryptUtil {
             }
 
             int params = Integer.parseInt(parts[2], 16);
-            byte[] salt = decodeFast(parts[3].toCharArray());
-            byte[] derived0 = decodeFast(parts[4].toCharArray());
+            byte[] salt = decode(parts[3].toCharArray());
+            byte[] derived0 = decode(parts[4].toCharArray());
 
             int N = (int) Math.pow(2, params >> 16 & 0xff);
             int r = params >> 8 & 0x0f;

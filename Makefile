@@ -43,7 +43,7 @@ clean:
 $(LIB): $(OBJ)
 	$(CC) $(LDFLAGS) -o $@ $^
 
-$(OBJ): $(OBJ_DIR)
+$(OBJ): | $(OBJ_DIR)
 
 $(OBJ_DIR):
 	@mkdir -p $@
