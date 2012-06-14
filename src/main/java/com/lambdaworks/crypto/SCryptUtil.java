@@ -4,9 +4,11 @@ package com.lambdaworks.crypto;
 
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
-import static com.lambdaworks.codec.Base64.*;
+import static com.lambdaworks.codec.Base64.decode;
+import static com.lambdaworks.codec.Base64.encode;
 
 /**
  * Simple {@link SCrypt} interface for hashing passwords using the
@@ -28,6 +30,16 @@ import static com.lambdaworks.codec.Base64.*;
  * @author  Will Glozer
  */
 public class SCryptUtil {
+    private static final int SALT_BITS = 128;
+    private static final SecureRandom SECURE_RANDOM;
+    static {
+        try {
+            SECURE_RANDOM = SecureRandom.getInstance("SHA1PRNG");
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("JVM doesn't support SHA1PRNG?");
+        }
+    }
+
     /**
      * Hash the supplied plaintext password and generate output in the format described
      * in {@link SCryptUtil}.
@@ -41,8 +53,7 @@ public class SCryptUtil {
      */
     public static String scrypt(String passwd, int N, int r, int p) {
         try {
-            byte[] salt = new byte[16];
-            SecureRandom.getInstance("SHA1PRNG").nextBytes(salt);
+            byte[] salt = generateSalt();
 
             byte[] derived = SCrypt.scrypt(passwd.getBytes("UTF-8"), salt, N, r, p, 32);
 
@@ -57,7 +68,7 @@ public class SCryptUtil {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("JVM doesn't support UTF-8?");
         } catch (GeneralSecurityException e) {
-            throw new IllegalStateException("JVM doesn't support SHA1PRNG or HMAC_SHA256?");
+            throw new IllegalStateException("JVM doesn't support HMAC_SHA256?");
         }
     }
 
@@ -97,8 +108,19 @@ public class SCryptUtil {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("JVM doesn't support UTF-8?");
         } catch (GeneralSecurityException e) {
-            throw new IllegalStateException("JVM doesn't support SHA1PRNG or HMAC_SHA256?");
+            throw new IllegalStateException("JVM doesn't support HMAC_SHA256?");
         }
+    }
+
+    /**
+     * Generate a random 128 bit salt, in accordance with version 0 of the {@link SCryptUtil scrypt format}.
+     *
+     * @return 128 bit salt
+     */
+    public static byte[] generateSalt() {
+        final byte[] salt = new byte[SALT_BITS / 8];
+        SECURE_RANDOM.nextBytes(salt);
+        return salt;
     }
 
     private static int log2(int n) {
