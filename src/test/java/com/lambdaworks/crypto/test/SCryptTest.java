@@ -5,18 +5,20 @@ package com.lambdaworks.crypto.test;
 import com.lambdaworks.crypto.SCrypt;
 import org.junit.Test;
 
-import static org.junit.Assert.*;
-import static com.lambdaworks.crypto.test.CryptoTestUtil.*;
-import static com.lambdaworks.crypto.SCrypt.*;
+import static com.lambdaworks.crypto.SCrypt.scrypt;
+import static com.lambdaworks.crypto.test.CryptoTestUtil.decode;
+import static org.junit.Assert.assertArrayEquals;
 
 public class SCryptTest {
+
+    // empty key & salt test missing because unsupported by JCE
+
+    // from scrypt paper appendix b
     @Test
-    public void scrypt_paper_appendix_b() throws Exception {
+    public void scrypt_N_1024() throws Exception {
         byte[] P, S;
         int N, r, p, dkLen;
         String DK;
-
-        // empty key & salt test missing because unsupported by JCE
 
         P = "password".getBytes("UTF-8");
         S = "NaCl".getBytes("UTF-8");
@@ -27,6 +29,14 @@ public class SCryptTest {
         DK = "fdbabe1c9d3472007856e7190d01e9fe7c6ad7cbc8237830e77376634b3731622eaf30d92e22a3886ff109279d9830dac727afb94a83ee6d8360cbdfa2cc0640";
 
         assertArrayEquals(decode(DK), SCrypt.scrypt(P, S, N, r, p, dkLen));
+    }
+
+    // from scrypt paper appendix b
+    @Test
+    public void scrypt_N_16384() throws Exception {
+        byte[] P, S;
+        int N, r, p, dkLen;
+        String DK;
 
         P = "pleaseletmein".getBytes("UTF-8");
         S = "SodiumChloride".getBytes("UTF-8");
@@ -37,6 +47,14 @@ public class SCryptTest {
         DK = "7023bdcb3afd7348461c06cd81fd38ebfda8fbba904f8e3ea9b543f6545da1f2d5432955613f0fcf62d49705242a9af9e61e85dc0d651e40dfcf017b45575887";
 
         assertArrayEquals(decode(DK), scrypt(P, S, N, r, p, dkLen));
+    }
+
+    // from scrypt paper appendix b
+    @Test
+    public void scrypt_N_1048576() throws Exception {
+        byte[] P, S;
+        int N, r, p, dkLen;
+        String DK;
 
         P = "pleaseletmein".getBytes("UTF-8");
         S = "SodiumChloride".getBytes("UTF-8");
@@ -67,8 +85,8 @@ public class SCryptTest {
     public void scrypt_invalid_N_large() throws Exception {
         byte[] P = "pleaseletmein".getBytes("UTF-8");
         byte[] S = "SodiumChloride".getBytes("UTF-8");
-        int    r = 8;
-        int    N = Integer.MAX_VALUE / 128;
+        int r = 8;
+        int N = Integer.MAX_VALUE / 128;
         scrypt(P, S, N, r, 1, 64);
     }
 
