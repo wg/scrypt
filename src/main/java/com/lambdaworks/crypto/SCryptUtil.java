@@ -4,9 +4,11 @@ package com.lambdaworks.crypto;
 
 import java.io.UnsupportedEncodingException;
 import java.security.GeneralSecurityException;
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 
-import static com.lambdaworks.codec.Base64.*;
+import static com.lambdaworks.codec.Base64.decode;
+import static com.lambdaworks.codec.Base64.encode;
 
 /**
  * Simple {@link SCrypt} interface for hashing passwords using the
@@ -28,6 +30,17 @@ import static com.lambdaworks.codec.Base64.*;
  * @author  Will Glozer
  */
 public class SCryptUtil {
+    private static final int SALT_BITS = 128;
+    private static final int DERIVED_KEY_BITS = 256;
+    private static final SecureRandom SECURE_RANDOM;
+    static {
+        try {
+            SECURE_RANDOM = SecureRandom.getInstance("SHA1PRNG");
+        } catch (NoSuchAlgorithmException e) {
+            throw new IllegalStateException("JVM doesn't support SHA1PRNG?");
+        }
+    }
+
     /**
      * Hash the supplied plaintext password and generate output in the format described
      * in {@link SCryptUtil}.
@@ -40,11 +53,34 @@ public class SCryptUtil {
      * @return The hashed password.
      */
     public static String scrypt(String passwd, int N, int r, int p) {
-        try {
-            byte[] salt = new byte[16];
-            SecureRandom.getInstance("SHA1PRNG").nextBytes(salt);
+        final byte[] salt = generateSalt();
+        return scrypt(passwd, salt, N, r, p);
+    }
 
-            byte[] derived = SCrypt.scrypt(passwd.getBytes("UTF-8"), salt, N, r, p, 32);
+    /**
+     * Hash the supplied plaintext password and generate output in the format described
+     * in {@link SCryptUtil}.
+     *
+     * Allows for passing in the salt in the rare case where you actually want to
+     * hash something to the same hash value. An example is hashing credit card
+     * numbers in order to detect duplicates without storing the actual card number.
+     *
+     * @param passwd    Password.
+     * @param salt      128 bit salt.
+     * @param N         CPU cost parameter.
+     * @param r         Memory cost parameter.
+     * @param p         Parallelization parameter.
+     *
+     * @return The hashed password.
+     * @see #generateSalt()
+     */
+    public static String scrypt(String passwd, byte[] salt, int N, int r, int p) {
+        try {
+            if (salt == null || salt.length != SALT_BITS / 8) {
+                throw new IllegalArgumentException("Salt must be " + SALT_BITS + " bits");
+            }
+
+            byte[] derived = SCrypt.scrypt(passwd.getBytes("UTF-8"), salt, N, r, p, DERIVED_KEY_BITS / 8);
 
             String params = Integer.toString(log2(N) << 16 | r << 8 | p, 16);
 
@@ -57,7 +93,7 @@ public class SCryptUtil {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("JVM doesn't support UTF-8?");
         } catch (GeneralSecurityException e) {
-            throw new IllegalStateException("JVM doesn't support SHA1PRNG or HMAC_SHA256?");
+            throw new IllegalStateException("JVM doesn't support HMAC_SHA256?");
         }
     }
 
@@ -85,7 +121,7 @@ public class SCryptUtil {
             int r = params >> 8 & 0x0f;
             int p = params      & 0x0f;
 
-            byte[] derived1 = SCrypt.scrypt(passwd.getBytes("UTF-8"), salt, N, r, p, 32);
+            byte[] derived1 = SCrypt.scrypt(passwd.getBytes("UTF-8"), salt, N, r, p, DERIVED_KEY_BITS / 8);
 
             if (derived0.length != derived1.length) return false;
 
@@ -97,8 +133,19 @@ public class SCryptUtil {
         } catch (UnsupportedEncodingException e) {
             throw new IllegalStateException("JVM doesn't support UTF-8?");
         } catch (GeneralSecurityException e) {
-            throw new IllegalStateException("JVM doesn't support SHA1PRNG or HMAC_SHA256?");
+            throw new IllegalStateException("JVM doesn't support HMAC_SHA256?");
         }
+    }
+
+    /**
+     * Generate a random 128 bit salt, in accordance with version 0 of the {@link SCryptUtil scrypt format}.
+     *
+     * @return 128 bit salt
+     */
+    public static byte[] generateSalt() {
+        final byte[] salt = new byte[SALT_BITS / 8];
+        SECURE_RANDOM.nextBytes(salt);
+        return salt;
     }
 
     private static int log2(int n) {
