@@ -46,7 +46,7 @@ public class SCryptUtil {
 
             byte[] derived = SCrypt.scrypt(passwd.getBytes("UTF-8"), salt, N, r, p, 32);
 
-            String params = Integer.toString(log2(N) << 16 | r << 8 | p, 16);
+            String params = Long.toString(log2(N) << 16L | r << 8 | p, 16);
 
             StringBuilder sb = new StringBuilder((salt.length + derived.length) * 2);
             sb.append("$s0$").append(params).append('$');
@@ -77,13 +77,13 @@ public class SCryptUtil {
                 throw new IllegalArgumentException("Invalid hashed value");
             }
 
-            int params = Integer.parseInt(parts[2], 16);
+            long params = Long.parseLong(parts[2], 16);
             byte[] salt = decode(parts[3].toCharArray());
             byte[] derived0 = decode(parts[4].toCharArray());
 
-            int N = (int) Math.pow(2, params >> 16 & 0xff);
-            int r = params >> 8 & 0x0f;
-            int p = params      & 0x0f;
+            int N = (int) Math.pow(2, params >> 16 & 0xffff);
+            int r = (int) params >> 8 & 0xff;
+            int p = (int) params      & 0xff;
 
             byte[] derived1 = SCrypt.scrypt(passwd.getBytes("UTF-8"), salt, N, r, p, 32);
 
