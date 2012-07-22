@@ -24,7 +24,7 @@ jbyteArray JNICALL scryptN(JNIEnv *env, jclass cls, jbyteArray passwd, jbyteArra
         char *msg;
         switch (errno) {
             case EINVAL:
-                msg = "N must be > 0 and a power of 2";
+                msg = "N must be a power of 2 greater than 1";
                 break;
             case EFBIG:
             case ENOMEM:
