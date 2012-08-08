@@ -4,7 +4,7 @@ SSE2   := yes
 TARGET ?= $(shell uname -s 2>/dev/null || echo unknown)
 override TARGET := $(shell echo $(TARGET) | tr A-Z a-z)
 
-JAVA_HOME ?= $(realpath $(dir $(realpath $(shell which java)))../)
+JAVA_HOME ?= $(realpath $(dir $(realpath $(shell which javac)))../)
 
 ifeq ($(TARGET), darwin)
 	DYLIB     := dylib
