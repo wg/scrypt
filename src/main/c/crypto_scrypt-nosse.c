@@ -29,7 +29,10 @@
 #include "scrypt_platform.h"
 
 #include <sys/types.h>
+
+#ifdef HAVE_POSIX_MEMALIGN
 #include <sys/mman.h>
+#endif
 
 #include <errno.h>
 #include <stdint.h>
