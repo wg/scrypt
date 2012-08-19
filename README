@@ -7,8 +7,8 @@ Java implementation of scrypt
   reference implementation contained in crypto_scrypt-ref.c, but any errors
   in this port are solely the fault of its author, Will Glozer.
 
-    http://www.tarsnap.com/scrypt/scrypt-1.1.6.tgz
-    http://www.tarsnap.com/scrypt/scrypt.pdf
+    https://www.tarsnap.com/scrypt/scrypt.pdf
+    https://scrypt.googlecode.com
 
   Join the lambdaWorks-OSS Google Group to discuss this project:
 
