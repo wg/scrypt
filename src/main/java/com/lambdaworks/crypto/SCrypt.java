@@ -24,8 +24,30 @@ public class SCrypt {
     private static final boolean native_library_loaded;
 
     static {
-        LibraryLoader loader = LibraryLoaders.loader();
-        native_library_loaded = loader.load("scrypt", true);
+	if (Boolean.getBoolean("com.lambdaworks.crypto.SCrypt.disableNative")) {
+	    // User want's pure java impl ?! ... Ok let's do so.
+	    native_library_loaded = false;
+	} else {
+	    // Path to the native lib (if provided)
+	    String libPath = System
+		    .getProperty("com.lambdaworks.crypto.SCrypt.nativeLib");
+	    // trim to null
+	    if (libPath != null) {
+		libPath = libPath.trim();
+		if (libPath.length() == 0) {
+		    libPath = null;
+		}
+	    }
+	    if (libPath == null) {
+		// automatic library loading
+		LibraryLoader loader = LibraryLoaders.loader();
+		native_library_loaded = loader.load("scrypt", true);
+	    } else {
+		// User wants to use a specific location / SystemLibraryLoader
+		LibraryLoader loader = new SystemLibraryLoader();
+		native_library_loaded = loader.load(libPath, true);
+	    }
+	}
     }
 
     /**
