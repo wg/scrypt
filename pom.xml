@@ -5,7 +5,7 @@
 
   <groupId>com.lambdaworks</groupId>
   <artifactId>scrypt</artifactId>
-  <version>1.3.3</version>
+	<version>1.3.4-SNAPSHOT</version>
 
   <packaging>jar</packaging>
 
@@ -60,27 +60,12 @@
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-jarsigner-plugin</artifactId>
-        <version>1.2</version>
-        <executions>
-          <execution>
-            <id>sign</id>
-            <phase>verify</phase>
-            <goals>
-              <goal>sign</goal>
-            </goals>
-          </execution>
-        </executions>
-      </plugin>
-
-      <plugin>
-        <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-surefire-plugin</artifactId>
         <version>2.10</version>
 
         <configuration>
           <useFile>false</useFile>
-          <argLine>-Xmx2G -Xms512M</argLine>
+					<argLine>-Xmx2G -Xms512M -XX:MaxHeapSize=256m</argLine>
         </configuration>
 
         <executions>
@@ -101,6 +86,31 @@
           </execution>
         </executions>
       </plugin>
+		</plugins>
+	</build>
+	<profiles>
+		<profile>
+			<id>sign</id>
+			<activation>
+				<activeByDefault>true</activeByDefault>
+			</activation>
+
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jarsigner-plugin</artifactId>
+						<version>1.2</version>
+						<executions>
+							<execution>
+								<id>sign</id>
+								<phase>verify</phase>
+								<goals>
+									<goal>sign</goal>
+								</goals>
+							</execution>
+						</executions>
+					</plugin>
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -118,6 +128,26 @@
       </plugin>
     </plugins>
   </build>
+		</profile>
+		<profile>
+			<id>privateClassif</id>
+			<activation>
+				<activeByDefault>false</activeByDefault>
+			</activation>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-jar-plugin</artifactId>
+						<version>2.3.2</version>
+						<configuration>
+							<classifier>PRIVATE</classifier>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
