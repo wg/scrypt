@@ -44,8 +44,15 @@ public class SCrypt {
 		native_library_loaded = loader.load("scrypt", true);
 	    } else {
 		// User wants to use a specific location / SystemLibraryLoader
-		LibraryLoader loader = new SystemLibraryLoader();
-		native_library_loaded = loader.load(libPath, true);
+		boolean sucessfullyLoaded = false;
+		try {
+			System.load(libPath);
+			sucessfullyLoaded = true;
+		} catch (Exception e) {
+			sucessfullyLoaded = false;
+			e.printStackTrace();
+		}
+		native_library_loaded = sucessfullyLoaded;
 	    }
 	}
     }
