@@ -1,2 +1,8 @@
+#Maven build result directory
 target/
+#binary objects
 *.o
+#Eclipse project files
+/.settings
+/.classpath
+/.project

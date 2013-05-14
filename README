@@ -15,6 +15,16 @@ Java implementation of scrypt
     http://groups.google.com/group/lambdaworks-oss
     lambdaworks-oss@googlegroups.com
 
+System prefrences
+  Two preferences are available : 
+    - com.lambdaworks.crypto.SCrypt.disableNative : if set to "true" will 
+    completely disable the native optimizations (regardless of other preferences)
+    - com.lambdaworks.crypto.SCrypt.nativeLib : allows to define the path to 
+    the native library
+    
+  eg.
+    java -Dcom.lambdaworks.crypto.SCrypt.disableNative=true MainClass
+    java -Dcom.lambdaworks.crypto.SCrypt.nativeLib=/path/to/the/native/lib.so MainClass
 Usage
 
   com.lambdaworks.crypto.SCryptUtil implements a modified version of MCF,
@@ -50,7 +60,8 @@ Maven Artifacts
   <dependency>
     <groupId>com.lambdaworks</groupId>
     <artifactId>scrypt</artifactId>
-    <version>1.3.3</version>
+    <version>1.3.4-SNAPSHOT</version>
+    <classifier>PRIVATE</classifier>
   </dependency>
 
 Native Code Implementation
