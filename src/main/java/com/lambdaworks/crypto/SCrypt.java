@@ -6,8 +6,6 @@ import com.lambdaworks.jni.*;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
-import java.lang.management.ManagementFactory;
-import java.lang.management.ThreadMXBean;
 import java.security.GeneralSecurityException;
 
 import static java.lang.Integer.MAX_VALUE;
@@ -24,12 +22,6 @@ import static java.lang.System.arraycopy;
  */
 public class SCrypt {
     private static final boolean native_library_loaded;
-
-    // for timedIterations()
-    private static final byte[] BENCH_PASSWD = "secret".getBytes();
-    private static final byte[] BENCH_SALT = "1234".getBytes();
-    private static final int BENCH_DK_LEN = 32;
-    private static final int BENCH_INITIAL_N = 64;
 
     static {
         LibraryLoader loader = LibraryLoaders.loader();
@@ -218,60 +210,5 @@ public class SCrypt {
         n |= (B[Bi + 3] & 0xff) << 24;
 
         return n;
-    }
-
-    /**
-     * Determines a CPU cost value (i.e. a value for the N parameter) that will cause password
-     * verification to take (roughly) a given time on the current CPU for the specified
-     * <code>r</code> and <code>p</code> values.<br/>
-     * N is rounded to the nearest power of two because only powers of two are valid
-     * choices for N. The actual time spent will be between about .7*<code>milliseconds</code>
-     * and 1.4*<code>milliseconds</code>.
-     *
-     * @param milliseconds the time scrypt should spend verifying a password
-     * @param r            memory cost parameter
-     * @param p            parallelization parameter
-     *
-     * @return a value for N such that <code>scrypt(N, r, p)</code> runs for roughly <code>milliseconds</code>
-     *
-     * @throws GeneralSecurityException when HMAC_SHA256 is not available.
-     */
-    public static int timedIterations(int milliseconds, int r, int p) throws GeneralSecurityException {
-        ThreadMXBean threadBean = ManagementFactory.getThreadMXBean();
-        boolean cpuTimeSupported = threadBean.isCurrentThreadCpuTimeSupported();
-        boolean origEnabledFlag = false;
-        if (cpuTimeSupported) {
-            origEnabledFlag = threadBean.isThreadCpuTimeEnabled();
-            if (!origEnabledFlag)
-                threadBean.setThreadCpuTimeEnabled(true);
-        }
-
-        int N = BENCH_INITIAL_N;
-        long lastDelta = 0;
-        while (true) {
-          // prefer CPU time over real world time so the result is load independent
-          long startTime = cpuTimeSupported ? threadBean.getCurrentThreadUserTime() : System.nanoTime();
-          SCrypt.scrypt(BENCH_PASSWD, BENCH_SALT, N, r, p, BENCH_DK_LEN);
-          long endTime = cpuTimeSupported ? threadBean.getCurrentThreadUserTime() : System.nanoTime();
-          long delta = (endTime-startTime) / 1000000;
-
-          // start over if a speed increase is detected due to the code being JITted
-          if (delta < lastDelta) {
-            N = BENCH_INITIAL_N;
-            lastDelta = 0;
-            continue;
-          }
-
-          if (delta > milliseconds) {
-            if (cpuTimeSupported)
-                threadBean.setThreadCpuTimeEnabled(origEnabledFlag);
-            // round to the nearest power of two
-            if (delta-delta/4 > milliseconds)
-                N /= 2;
-            return N;
-          }
-          N *= 2;
-          lastDelta = delta;
-        }
     }
 }

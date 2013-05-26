@@ -72,7 +72,7 @@ public class SCryptUtilTest {
         Random random = new Random();
         for (int i=0; i<5; i++) {
             int targetDuration = 100 + random.nextInt(900);
-            int numIterations = SCrypt.timedIterations(targetDuration, 8, 1);
+            int numIterations = SCryptUtil.timedIterations(targetDuration, 8, 1);
             long startTime = cpuTimeSupported ? threadBean.getCurrentThreadUserTime() : System.nanoTime();
             SCrypt.scrypt(passwd.getBytes(), salt, numIterations, 8, 1, dkLen);
             long endTime = cpuTimeSupported ? threadBean.getCurrentThreadUserTime() : System.nanoTime();
