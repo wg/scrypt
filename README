@@ -42,6 +42,20 @@ Usage
          r = 8
          p = 1
 
+Native Code Implementation
+
+  When the native library can be loaded it will be used instead of the pure
+  Java implementation. On a J2SE compliant JVM the native library will be
+  extracted from the jar and loaded, and on other VMs System.loadLibrary will
+  be called.
+
+  The system property "com.lambdaworks.jni.loader" may be set to override
+  the default native library loader with one of the following values:
+
+    nil: refuse to load native libraries and revert to pure Java implementation
+    jar: extract native library from jar and load with System.load
+    sys: use System.loadLibrary, which may require java.library.path to be set
+
 Maven Artifacts
 
   Releases containing the pure Java implementation, as well as native libraries
@@ -50,10 +64,10 @@ Maven Artifacts
   <dependency>
     <groupId>com.lambdaworks</groupId>
     <artifactId>scrypt</artifactId>
-    <version>1.3.3</version>
+    <version>1.4.0</version>
   </dependency>
 
-Native Code Implementation
+Building Native Implementation
 
   A native shared library for the current platform may be built by running GNU
   make. The Makefile attempts to detect the runtime platform and JDK location,
@@ -64,9 +78,6 @@ Native Code Implementation
   SSE2      - use the SSE2 optimized scrypt implementation when set
   JAVA_HOME - base directory of a Java 6+ JDK
   NDK_ROOT  - base directory of Android NDK
-
-  When the native library can be loaded it will be used instead of the pure
-  Java implementation.
 
   A precompiled native library for Android 2.3 running on ARM is located in
   src/android/resources/lib/arm5/libscrypt.so. If placed in an .apk file's

@@ -8,7 +8,7 @@ package com.lambdaworks.jni;
  *
  * @author Will Glozer
  */
-public class SystemLibraryLoader implements LibraryLoader {
+public class SysLibraryLoader implements LibraryLoader {
     /**
      * Load a shared library.
      *
