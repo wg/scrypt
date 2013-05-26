@@ -77,7 +77,10 @@ public class SCryptUtilTest {
             SCrypt.scrypt(passwd.getBytes(), salt, numIterations, 8, 1, dkLen);
             long endTime = cpuTimeSupported ? threadBean.getCurrentThreadUserTime() : System.nanoTime();
             long actualDuration = (endTime-startTime) / 1000000;
-            assertTrue(actualDuration>targetDuration*5/10 && actualDuration<targetDuration*16/10);   // be generous
+
+            // check that actual duration is within targetDuration - 50% and targetDuration + 60%
+            assertTrue(actualDuration > targetDuration*0.5);
+            assertTrue(actualDuration < targetDuration*1.6);
       }
     }
 }
