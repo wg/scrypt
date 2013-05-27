@@ -29,6 +29,14 @@ public class SCrypt {
     }
 
     /**
+     * Tells if the native lib has been successfully loaded.
+     * @return <code>true</code> while working on native lib.
+     */
+    public static boolean isNativeImpl(){
+        return native_library_loaded;
+    }
+
+    /**
      * Implementation of the <a href="http://www.tarsnap.com/scrypt/scrypt.pdf"/>scrypt KDF</a>.
      * Calls the native implementation {@link #scryptN} when the native library was successfully
      * loaded, otherwise calls {@link #scryptJ}.
