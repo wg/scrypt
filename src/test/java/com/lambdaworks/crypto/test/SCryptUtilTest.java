@@ -3,7 +3,12 @@
 package com.lambdaworks.crypto.test;
 
 import com.lambdaworks.codec.Base64;
+import com.lambdaworks.crypto.SCrypt;
 import com.lambdaworks.crypto.SCryptUtil;
+import java.lang.management.ManagementFactory;
+import java.lang.management.ThreadMXBean;
+import java.security.GeneralSecurityException;
+import java.util.Random;
 import org.junit.Assert;
 import org.junit.Test;
 import static org.junit.Assert.*;
@@ -55,5 +60,28 @@ public class SCryptUtilTest {
         assertEquals(N, (int) Math.pow(2, params >>> 16 & 0xffff));
         assertEquals(r, params >> 8 & 0xff);
         assertEquals(p, params >> 0 & 0xff);
+    }
+
+    @Test
+    public void testTimedIterations() throws GeneralSecurityException {
+        byte[] salt = "1234".getBytes();
+        int dkLen = 32;
+
+        ThreadMXBean threadBean = ManagementFactory.getThreadMXBean();
+        boolean cpuTimeSupported = threadBean.isCurrentThreadCpuTimeSupported();
+        Random random = new Random();
+        for (int i=0; i<5; i++) {
+            int targetDuration = 100 + random.nextInt(900);
+            int numIterations = SCryptUtil.timedIterations(targetDuration, 8, 1);
+            long startTime = cpuTimeSupported ? threadBean.getCurrentThreadUserTime() : System.nanoTime();
+            SCrypt.scrypt(passwd.getBytes(), salt, numIterations, 8, 1, dkLen);
+            long endTime = cpuTimeSupported ? threadBean.getCurrentThreadUserTime() : System.nanoTime();
+            long actualDuration = (endTime-startTime) / 1000000;
+
+            // check that actual duration is within targetDuration - 50% and targetDuration + 60%
+            String failMessage = "Target duration=" + targetDuration + ", actual=" + actualDuration;
+            assertTrue(failMessage, actualDuration > targetDuration*0.5);
+            assertTrue(failMessage, actualDuration < targetDuration*1.6);
+      }
     }
 }
