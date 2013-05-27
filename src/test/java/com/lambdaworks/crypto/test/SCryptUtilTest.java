@@ -79,8 +79,9 @@ public class SCryptUtilTest {
             long actualDuration = (endTime-startTime) / 1000000;
 
             // check that actual duration is within targetDuration - 50% and targetDuration + 60%
-            assertTrue(actualDuration > targetDuration*0.5);
-            assertTrue(actualDuration < targetDuration*1.6);
+            String failMessage = "Target duration=" + targetDuration + ", actual=" + actualDuration;
+            assertTrue(failMessage, actualDuration > targetDuration*0.5);
+            assertTrue(failMessage, actualDuration < targetDuration*1.6);
       }
     }
 }
