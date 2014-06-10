@@ -134,6 +134,9 @@ public class JarLibraryLoader implements LibraryLoader {
                 candidates.add(sb + ".dylib");
                 candidates.add(sb + ".jnilib");
                 break;
+            case windows:
+                candidates.add(sb + ".dll");
+                break;
             case linux:
             case freebsd:
                 candidates.add(sb + ".so");
