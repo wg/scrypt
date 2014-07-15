@@ -82,3 +82,10 @@ Building Native Implementation
   A precompiled native library for Android 2.3 running on ARM is located in
   src/android/resources/lib/arm5/libscrypt.so. If placed in an .apk file's
   lib/armeabi directory it will be automatically loaded.
+
+  To build the Windows shared library, you need MinGW. On Ubuntu, this is:
+    * mingw32
+    * mingw32-binutils
+    * mingw32-runtime
+    * mingw-w64
+    * mingw-w64-tools
