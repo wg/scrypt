@@ -27,6 +27,7 @@ public class Platform {
     }
 
     public enum OS {
+        windows ("windows .*"),
         darwin ("darwin|mac os x"),
         freebsd("freebsd"),
         linux  ("linux");

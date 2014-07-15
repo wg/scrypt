@@ -4,12 +4,23 @@ SSE2   := yes
 TARGET ?= $(shell uname -s 2>/dev/null || echo unknown)
 override TARGET := $(shell echo $(TARGET) | tr A-Z a-z)
 
-JAVA_HOME ?= $(realpath $(dir $(realpath $(shell which java)))../)
+JAVA_HOME ?= $(realpath $(dir $(realpath $(shell which javac)))../)
 
 ifeq ($(TARGET), darwin)
 	DYLIB     := dylib
 	LDFLAGS	  := -dynamiclib -Wl,-undefined -Wl,dynamic_lookup -Wl,-single_module
 	CFLAGS    += -I $(JAVA_HOME)/Headers/
+else ifeq ($(TARGET), win32)
+	DYLIB     := dll
+	LDFLAGS   := -shared
+	CC        := i586-mingw32msvc-cc
+	SSE2      :=
+	CFLAGS    += -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/$(TARGET) -DNO_HAVE_POSIX_MEMALIGN
+else ifeq ($(TARGET), win64)
+	DYLIB     := dll
+	LDFLAGS   := -shared
+	CC        := x86_64-w64-mingw32-gcc
+	CFLAGS    += -I $(JAVA_HOME)/include -I $(JAVA_HOME)/include/$(TARGET) -DNO_HAVE_POSIX_MEMALIGN
 else
 	DYLIB     := so
 	LDFLAGS   := -shared
