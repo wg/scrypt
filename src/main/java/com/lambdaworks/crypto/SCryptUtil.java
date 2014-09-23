@@ -2,9 +2,12 @@
 
 package com.lambdaworks.crypto;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.charset.UnsupportedCharsetException;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.util.Arrays;
+import java.nio.charset.Charset;
+import java.nio.CharBuffer;
 
 import static com.lambdaworks.codec.Base64.*;
 
@@ -40,21 +43,50 @@ public class SCryptUtil {
      * @return The hashed password.
      */
     public static String scrypt(String passwd, int N, int r, int p) {
+        char[] buff = passwd.toCharArray();
+        try {
+            return scrypt(buff, N, r, p);
+        } finally {
+            Arrays.fill(buff, ' ');
+        }
+    }
+    
+    /**
+     * Hash the supplied plaintext password and generate output in the format described
+     * in {@link SCryptUtil}.
+     *
+     * @param passwd    Password.
+     * @param N         CPU cost parameter.
+     * @param r         Memory cost parameter.
+     * @param p         Parallelization parameter.
+     *
+     * @return The hashed password.
+     */
+    public static String scrypt(char[] passwd, int N, int r, int p) {
         try {
             byte[] salt = new byte[16];
             SecureRandom.getInstance("SHA1PRNG").nextBytes(salt);
-
-            byte[] derived = SCrypt.scrypt(passwd.getBytes("UTF-8"), salt, N, r, p, 32);
-
+            
+            byte[] passBytes = null;
+            byte[] derived;
+            try {
+                passBytes = Charset.forName("UTF-8").encode(CharBuffer.wrap(passwd)).array();
+                derived = SCrypt.scrypt(passBytes, salt, N, r, p, 32);
+            } finally {
+                if (passBytes != null) {
+                    Arrays.fill(passBytes, Byte.MIN_VALUE);
+                }
+            }
+            
             String params = Long.toString(log2(N) << 16L | r << 8 | p, 16);
-
+            
             StringBuilder sb = new StringBuilder((salt.length + derived.length) * 2);
             sb.append("$s0$").append(params).append('$');
             sb.append(encode(salt)).append('$');
             sb.append(encode(derived));
 
             return sb.toString();
-        } catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedCharsetException e) {
             throw new IllegalStateException("JVM doesn't support UTF-8?");
         } catch (GeneralSecurityException e) {
             throw new IllegalStateException("JVM doesn't support SHA1PRNG or HMAC_SHA256?");
@@ -70,6 +102,23 @@ public class SCryptUtil {
      * @return true if passwd matches hashed value.
      */
     public static boolean check(String passwd, String hashed) {
+        char[] buff = passwd.toCharArray();
+        try {
+            return check(buff, hashed);
+        } finally {
+            Arrays.fill(buff, ' ');
+        }
+    }
+
+    /**
+     * Compare the supplied plaintext password to a hashed password.
+     *
+     * @param   passwd  Plaintext password.
+     * @param   hashed  scrypt hashed password.
+     *
+     * @return true if passwd matches hashed value.
+     */
+    public static boolean check(char[] passwd, String hashed) {
         try {
             String[] parts = hashed.split("\\$");
 
@@ -85,7 +134,16 @@ public class SCryptUtil {
             int r = (int) params >> 8 & 0xff;
             int p = (int) params      & 0xff;
 
-            byte[] derived1 = SCrypt.scrypt(passwd.getBytes("UTF-8"), salt, N, r, p, 32);
+            byte[] passBytes = null;
+            byte[] derived1;
+            try {
+                passBytes = Charset.forName("UTF-8").encode(CharBuffer.wrap(passwd)).array();
+                derived1 = SCrypt.scrypt(passBytes, salt, N, r, p, 32);
+            } finally {
+                if (passBytes != null) {
+                    Arrays.fill(passBytes, Byte.MIN_VALUE);
+                }
+            }
 
             if (derived0.length != derived1.length) return false;
 
@@ -94,7 +152,7 @@ public class SCryptUtil {
                 result |= derived0[i] ^ derived1[i];
             }
             return result == 0;
-        } catch (UnsupportedEncodingException e) {
+        } catch (UnsupportedCharsetException e) {
             throw new IllegalStateException("JVM doesn't support UTF-8?");
         } catch (GeneralSecurityException e) {
             throw new IllegalStateException("JVM doesn't support SHA1PRNG or HMAC_SHA256?");
