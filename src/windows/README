@@ -1,0 +1,26 @@
+Windows Native Library for Java Implementation of Scrypt
+========================================================
+
+This directory (/src/windows) contains files needed to build a Windows
+dynamic library to be loaded by JNI mechanism employed by the [Java
+implementation of Scrypt](https://github.com/wg/scrypt).
+
+Most of the codes are taken from
+[https://github.com/barrysteyn/scrypt-windows], so all credits should 
+go to Barry Steyn.
+
+To build the dynamic loading library for Windows, JDK (1.7 or higher)
+and Microsoft Windows SDK (tested with SDK 7.1) should be installed,
+and JAVA_HOME should be set to the installed JDK, the Windows SDK's
+Bin/ directory should be in PATH (we are calling setenv.bat from the
+build script.) After you have the environment setup, simply double
+click on the build.bat should do the trick. After a successful
+building, you will get libscrypt32.dll and libscrypt64.dll in your
+(project root)/target directory.
+
+The scrypt-windows project contains 3 implementations of scrypt. In
+this project, I picked the one with SSE optimization. If you want to
+use the others, go to 
+[https://github.com/barrysteyn/scrypt-windows/tree/master/scrypt-1.1.6/lib/crypto]
+and pick one from crypto_scrypt-{ref,nosse,sse}.c to replace
+c/crypto_scrypt-sse.c.
