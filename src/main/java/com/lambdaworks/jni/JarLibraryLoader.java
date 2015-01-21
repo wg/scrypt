@@ -56,7 +56,7 @@ public class JarLibraryLoader implements LibraryLoader {
 
         try {
             Platform platform = Platform.detect();
-            JarFile jar = new JarFile(codeSource.getLocation().getPath(), verify);
+            JarFile jar = new JarFile(new File(codeSource.getLocation().toURI()), verify);
             try {
                 for (String path : libCandidates(platform, name)) {
                     JarEntry entry = jar.getJarEntry(path);
