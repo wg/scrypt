@@ -79,6 +79,12 @@ Building Native Implementation
   JAVA_HOME - base directory of a Java 6+ JDK
   NDK_ROOT  - base directory of Android NDK
 
-  A precompiled native library for Android 2.3 running on ARM is located in
-  src/android/resources/lib/arm5/libscrypt.so. If placed in an .apk file's
-  lib/armeabi directory it will be automatically loaded.
+  A set of precompiled native libraries for Android 2.3 for several
+  architecture is located in src/android/resources/lib/. If placed in
+  an .apk file's lib/ directory the proper native library will be
+  automatically loaded.
+
+Extra Notes on Android Native Implementation
+
+  To build your own android native libraries with NDK, read the
+  instructions in src/android/README.md
