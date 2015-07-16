@@ -10,7 +10,7 @@ To build and use native library on android, do the following:
 1. check (and potentially edit) the target architectures defined in
    src/android/jni/Application.mk as APP_ABI [3]
 
-1. make sure your current directory is src/android
+1. make sure your current directory is src/android/jni
 
 1. run `ndk-build`
 
