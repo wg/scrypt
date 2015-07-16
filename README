@@ -82,3 +82,8 @@ Building Native Implementation
   A precompiled native library for Android 2.3 running on ARM is located in
   src/android/resources/lib/arm5/libscrypt.so. If placed in an .apk file's
   lib/armeabi directory it will be automatically loaded.
+
+Extra Notes on Android Native Implementation
+
+  To build your own android native libraries with NDK, read the
+  instructions in src/android/README.md
