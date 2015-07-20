@@ -44,9 +44,11 @@ public class SCryptUtil {
      */
     public static String scrypt(String passwd, int N, int r, int p) {
         byte[] bytes = passwd.getBytes(StandardCharsets.UTF_8);
-        String result = scryptInternal(bytes, N, r, p);
-        wipeArray(bytes);
-        return result;
+        try {
+            return scryptInternal(bytes, N, r, p);
+        } finally {
+            wipeArray(bytes);
+        }
     }
 
     /**
@@ -61,9 +63,11 @@ public class SCryptUtil {
      */
     public static String scrypt(char[] passwd, int N, int r, int p) {
         byte[] bytes = toBytes(passwd);
-        String result = scryptInternal(bytes, N, r, p);
-        wipeArray(bytes);
-        return result;
+        try {
+            return scryptInternal(bytes, N, r, p);
+        } finally {
+            wipeArray(bytes);
+        }
     }
 
     private static String scryptInternal(byte[] passwordBytes, int N, int r, int p) {
@@ -89,9 +93,11 @@ public class SCryptUtil {
     private static byte[] toBytes(char[] chars) {
         CharBuffer charBuffer = CharBuffer.wrap(chars);
         ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
-        byte[] bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
-        wipeArray(byteBuffer.array());
-        return bytes;
+        try {
+            return Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
+        } finally {
+            wipeArray(byteBuffer.array());
+        }
     }
 
     /**
@@ -103,9 +109,11 @@ public class SCryptUtil {
      */
     public static boolean check(String passwd, String hashed) {
         byte[] bytes = passwd.getBytes(StandardCharsets.UTF_8);
-        boolean result = checkInternal(bytes, hashed);
-        wipeArray(bytes);
-        return result;
+        try {
+            return checkInternal(bytes, hashed);
+        } finally {
+            wipeArray(bytes);
+        }
     }
 
     /**
@@ -117,9 +125,11 @@ public class SCryptUtil {
      */
     public static boolean check(char[] passwd, String hashed) {
         byte[] bytes = toBytes(passwd);
-        boolean result = checkInternal(bytes, hashed);
-        wipeArray(bytes);
-        return result;
+        try {
+            return checkInternal(bytes, hashed);
+        } finally {
+            wipeArray(bytes);
+        }
     }
 
     private static boolean checkInternal(byte[] passwordBytes, String hashed) {
