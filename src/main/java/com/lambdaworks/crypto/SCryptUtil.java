@@ -2,9 +2,12 @@
 
 package com.lambdaworks.crypto;
 
-import java.io.UnsupportedEncodingException;
+import java.nio.ByteBuffer;
+import java.nio.CharBuffer;
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
+import java.util.Arrays;
 
 import static com.lambdaworks.codec.Base64.*;
 
@@ -40,11 +43,35 @@ public class SCryptUtil {
      * @return The hashed password.
      */
     public static String scrypt(String passwd, int N, int r, int p) {
+        byte[] bytes = passwd.getBytes(StandardCharsets.UTF_8);
+        String result = scryptInternal(bytes, N, r, p);
+        wipeArray(bytes);
+        return result;
+    }
+
+    /**
+     * Hash the supplied plaintext password and generate output in the format described
+     * in {@link SCryptUtil}.
+     *
+     * @param passwd Password.
+     * @param N      CPU cost parameter.
+     * @param r      Memory cost parameter.
+     * @param p      Parallelization parameter.
+     * @return The hashed password.
+     */
+    public static String scrypt(char[] passwd, int N, int r, int p) {
+        byte[] bytes = toBytes(passwd);
+        String result = scryptInternal(bytes, N, r, p);
+        wipeArray(bytes);
+        return result;
+    }
+
+    private static String scryptInternal(byte[] passwordBytes, int N, int r, int p) {
         try {
             byte[] salt = new byte[16];
             SecureRandom.getInstance("SHA1PRNG").nextBytes(salt);
 
-            byte[] derived = SCrypt.scrypt(passwd.getBytes("UTF-8"), salt, N, r, p, 32);
+            byte[] derived = SCrypt.scrypt(passwordBytes, salt, N, r, p, 32);
 
             String params = Long.toString(log2(N) << 16L | r << 8 | p, 16);
 
@@ -54,11 +81,17 @@ public class SCryptUtil {
             sb.append(encode(derived));
 
             return sb.toString();
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException("JVM doesn't support UTF-8?");
         } catch (GeneralSecurityException e) {
             throw new IllegalStateException("JVM doesn't support SHA1PRNG or HMAC_SHA256?");
         }
+    }
+
+    private static byte[] toBytes(char[] chars) {
+        CharBuffer charBuffer = CharBuffer.wrap(chars);
+        ByteBuffer byteBuffer = StandardCharsets.UTF_8.encode(charBuffer);
+        byte[] bytes = Arrays.copyOfRange(byteBuffer.array(), byteBuffer.position(), byteBuffer.limit());
+        wipeArray(byteBuffer.array());
+        return bytes;
     }
 
     /**
@@ -66,10 +99,30 @@ public class SCryptUtil {
      *
      * @param   passwd  Plaintext password.
      * @param   hashed  scrypt hashed password.
-     *
      * @return true if passwd matches hashed value.
      */
     public static boolean check(String passwd, String hashed) {
+        byte[] bytes = passwd.getBytes(StandardCharsets.UTF_8);
+        boolean result = checkInternal(bytes, hashed);
+        wipeArray(bytes);
+        return result;
+    }
+
+    /**
+     * Compare the supplied plaintext password to a hashed password.
+     *
+     * @param   passwd  Plaintext password.
+     * @param   hashed  scrypt hashed password.
+     * @return true if passwd matches hashed value.
+     */
+    public static boolean check(char[] passwd, String hashed) {
+        byte[] bytes = toBytes(passwd);
+        boolean result = checkInternal(bytes, hashed);
+        wipeArray(bytes);
+        return result;
+    }
+
+    private static boolean checkInternal(byte[] passwordBytes, String hashed) {
         try {
             String[] parts = hashed.split("\\$");
 
@@ -85,7 +138,7 @@ public class SCryptUtil {
             int r = (int) params >> 8 & 0xff;
             int p = (int) params      & 0xff;
 
-            byte[] derived1 = SCrypt.scrypt(passwd.getBytes("UTF-8"), salt, N, r, p, 32);
+            byte[] derived1 = SCrypt.scrypt(passwordBytes, salt, N, r, p, 32);
 
             if (derived0.length != derived1.length) return false;
 
@@ -94,8 +147,6 @@ public class SCryptUtil {
                 result |= derived0[i] ^ derived1[i];
             }
             return result == 0;
-        } catch (UnsupportedEncodingException e) {
-            throw new IllegalStateException("JVM doesn't support UTF-8?");
         } catch (GeneralSecurityException e) {
             throw new IllegalStateException("JVM doesn't support SHA1PRNG or HMAC_SHA256?");
         }
@@ -108,5 +159,9 @@ public class SCryptUtil {
         if (n >= 16 ) { n >>>= 4; log += 4; }
         if (n >= 4  ) { n >>>= 2; log += 2; }
         return log + (n >>> 1);
+    }
+
+    private static void wipeArray(byte[] array) {
+        Arrays.fill(array, (byte) 0);
     }
 }
