@@ -56,13 +56,17 @@ public class JarLibraryLoader implements LibraryLoader {
 
         try {
             Platform platform = Platform.detect();
-            JarFile jar = new JarFile(codeSource.getLocation().getPath(), verify);
+            JarFile jar = new JarFile(new File(codeSource.getLocation().toURI()), verify);
             try {
                 for (String path : libCandidates(platform, name)) {
                     JarEntry entry = jar.getJarEntry(path);
                     if (entry == null) continue;
 
-                    File lib = extract(name, jar.getInputStream(entry));
+                    String ext = path.contains(".")
+                    		? path.substring(path.lastIndexOf("."))
+                    		: "lib";
+
+                    File lib = extract(name, ext, jar.getInputStream(entry));
                     System.load(lib.getAbsolutePath());
                     lib.delete();
 
@@ -89,11 +93,11 @@ public class JarLibraryLoader implements LibraryLoader {
      *
      * @throws IOException when an IO error occurs.
      */
-    private static File extract(String name, InputStream is) throws IOException {
+    private static File extract(String name, String ext, InputStream is) throws IOException {
         byte[] buf = new byte[4096];
         int len;
 
-        File lib = File.createTempFile(name, "lib");
+        File lib = File.createTempFile(name, ext);
         FileOutputStream os = new FileOutputStream(lib);
 
         try {
@@ -138,6 +142,9 @@ public class JarLibraryLoader implements LibraryLoader {
             case freebsd:
                 candidates.add(sb + ".so");
                 break;
+            case windows:
+            	candidates.add(sb + ".dll");
+            	break;
         }
 
         return candidates;

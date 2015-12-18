@@ -7,9 +7,31 @@
 #include <jni.h>
 #include "crypto_scrypt.h"
 
+#ifdef ANDROID
+
+#include <android/log.h>
+#include <stdint.h>
+
+#define ANDROID_LOG_TAG "ScryptLog"
+#define ALOG(msg, ...) __android_log_print(ANDROID_LOG_VERBOSE, ANDROID_LOG_TAG, msg, ##__VA_ARGS__)
+
+#define STR1(x)  #x
+#define STR(x)  STR1(x)
+
+void log_basic_info();
+void log_params(JNIEnv *env, jbyteArray passwd, jbyteArray salt, jint N, jint r, jint p, jint dkLen);
+
+#endif
+
 jbyteArray JNICALL scryptN(JNIEnv *env, jclass cls, jbyteArray passwd, jbyteArray salt,
     jint N, jint r, jint p, jint dkLen)
 {
+
+#ifdef ANDROID
+  log_basic_info();
+  log_params(env, passwd, salt, N, r, p, dkLen);
+#endif
+
     jint Plen = (*env)->GetArrayLength(env, passwd);
     jint Slen = (*env)->GetArrayLength(env, salt);
     jbyte *P = (*env)->GetByteArrayElements(env, passwd, NULL);
@@ -50,6 +72,38 @@ jbyteArray JNICALL scryptN(JNIEnv *env, jclass cls, jbyteArray passwd, jbyteArra
 
     return DK;
 }
+
+#ifdef ANDROID
+
+char *get_byte_array_summary(JNIEnv *env, jbyteArray jarray) {
+  int len = (*env)->GetArrayLength(env, jarray);
+  jbyte *bytes = (*env)->GetByteArrayElements(env, jarray, NULL);
+
+  static char buff[10240];
+  int i;
+  for (i = 0; i < len; ++i) {
+    buff[i] = bytes[i] % 32 + 'a';
+  }
+  buff[i] = '\0';
+
+  if (bytes) (*env)->ReleaseByteArrayElements(env, jarray, bytes, JNI_ABORT);
+
+  return buff;
+}
+
+void log_params(JNIEnv *env, jbyteArray passwd, jbyteArray salt, jint N, jint r, jint p, jint dkLen) {
+  ALOG("Parameters for native scrypt run:");
+  ALOG("passwd (summary): %s", get_byte_array_summary(env, passwd));
+  ALOG("salt (summary): %s", get_byte_array_summary(env, salt));
+  ALOG("N, r, p, dkLen: %d, %d, %d, %d", (int32_t) N, (int32_t) r, (int32_t) p, (int32_t) dkLen);
+}
+
+void log_basic_info() {
+  ALOG("Basic info for native scrypt run:");
+  ALOG("Native library targeting arch: %s", STR(ANDROID_TARGET_ARCH));
+}
+
+#endif
 
 static const JNINativeMethod methods[] = {
     { "scryptN", "([B[BIIII)[B", (void *) scryptN }
