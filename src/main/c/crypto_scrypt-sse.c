@@ -249,6 +249,22 @@ smix(uint8_t * B, size_t r, uint64_t N, void * V, void * XY)
 	}
 }
 
+/** 
+ * Frees B0 and returns error code.
+ */
+static int free_and_quit_with_error(void * B0) {
+	free(B0);
+	return -1;
+}
+
+/**
+ * Frees XY0 followed by B0 and returns error code.
+ */
+static int free_all_and_quit_with_error(void * XY0, void * B0) {
+	free(XY0);
+	return free_and_quit_with_error(&B0);
+}
+
 /**
  * crypto_scrypt(passwd, passwdlen, salt, saltlen, N, r, p, buf, buflen):
  * Compute scrypt(passwd[0 .. passwdlen - 1], salt[0 .. saltlen - 1], N, r,
@@ -273,16 +289,16 @@ crypto_scrypt(const uint8_t * passwd, size_t passwdlen,
 #if SIZE_MAX > UINT32_MAX
 	if (buflen > (((uint64_t)(1) << 32) - 1) * 32) {
 		errno = EFBIG;
-		goto err0;
+		return (-1);
 	}
 #endif
 	if ((uint64_t)(r) * (uint64_t)(p) >= (1 << 30)) {
 		errno = EFBIG;
-		goto err0;
+		return (-1);
 	}
 	if (((N & (N - 1)) != 0) || (N < 2)) {
 		errno = EINVAL;
-		goto err0;
+		return (-1);
 	}
 	if ((r > SIZE_MAX / 128 / p) ||
 #if SIZE_MAX / 256 <= UINT32_MAX
@@ -290,32 +306,32 @@ crypto_scrypt(const uint8_t * passwd, size_t passwdlen,
 #endif
 	    (N > SIZE_MAX / 128 / r)) {
 		errno = ENOMEM;
-		goto err0;
+		return (-1);
 	}
 
 	/* Allocate memory. */
 #ifdef HAVE_POSIX_MEMALIGN
 	if ((errno = posix_memalign(&B0, 64, 128 * r * p)) != 0)
-		goto err0;
+		return (-1);
 	B = (uint8_t *)(B0);
 	if ((errno = posix_memalign(&XY0, 64, 256 * r + 64)) != 0)
-		goto err1;
+		return free_and_quit_with_error(&B0);
 	XY = (uint32_t *)(XY0);
 #ifndef MAP_ANON
 	if ((errno = posix_memalign(&V0, 64, 128 * r * N)) != 0)
-		goto err2;
+		return free_all_and_quit_with_error(&XY0, &B0);
 	V = (uint32_t *)(V0);
 #endif
 #else
 	if ((B0 = malloc(128 * r * p + 63)) == NULL)
-		goto err0;
+		return (-1);
 	B = (uint8_t *)(((uintptr_t)(B0) + 63) & ~ (uintptr_t)(63));
 	if ((XY0 = malloc(256 * r + 64 + 63)) == NULL)
-		goto err1;
+		return free_and_quit_with_error(&B0);
 	XY = (uint32_t *)(((uintptr_t)(XY0) + 63) & ~ (uintptr_t)(63));
 #ifndef MAP_ANON
 	if ((V0 = malloc(128 * r * N + 63)) == NULL)
-		goto err2;
+		return free_all_and_quit_with_error(&XY0, &B0);
 	V = (uint32_t *)(((uintptr_t)(V0) + 63) & ~ (uintptr_t)(63));
 #endif
 #endif
@@ -327,7 +343,7 @@ crypto_scrypt(const uint8_t * passwd, size_t passwdlen,
 	    MAP_ANON | MAP_PRIVATE,
 #endif
 	    -1, 0)) == MAP_FAILED)
-		goto err2;
+		return free_all_and_quit_with_error(&XY0, &B0);
 	V = (uint32_t *)(V0);
 #endif
 
@@ -346,7 +362,7 @@ crypto_scrypt(const uint8_t * passwd, size_t passwdlen,
 	/* Free memory. */
 #ifdef MAP_ANON
 	if (munmap(V0, 128 * r * N))
-		goto err2;
+		return free_all_and_quit_with_error(&XY0, &B0);
 #else
 	free(V0);
 #endif
@@ -355,12 +371,4 @@ crypto_scrypt(const uint8_t * passwd, size_t passwdlen,
 
 	/* Success! */
 	return (0);
-
-err2:
-	free(XY0);
-err1:
-	free(B0);
-err0:
-	/* Failure! */
-	return (-1);
 }
