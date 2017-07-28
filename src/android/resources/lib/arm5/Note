@@ -1,0 +1,31 @@
+file: /data/user/0/org.ligi.satoshiproof/files/1.0.4-1499114054580.tracedroid
+Android Version: 6.0.1
+Phone Model: 5027B
+TraceDroid Version: 1.1
+TraceDroid extra: 
+Stacktrace: 
+ java.lang.RuntimeException: Unable to start activity ComponentInfo{org.ligi.satoshiproof/org.ligi.satoshiproof.MainActivity}: java.lang.NullPointerException: Attempt to invoke virtual method 'char[] java.lang.String.toCharArray()' on a null object reference
+	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2416)
+	at android.app.ActivityThread.handleLaunchActivity(ActivityThread.java:2476)
+	at android.app.ActivityThread.access$900(ActivityThread.java:150)
+	at android.app.ActivityThread$H.handleMessage(ActivityThread.java:1344)
+	at android.os.Handler.dispatchMessage(Handler.java:102)
+	at android.os.Looper.loop(Looper.java:148)
+	at android.app.ActivityThread.main(ActivityThread.java:5417)
+	at java.lang.reflect.Method.invoke(Native Method)
+	at com.android.internal.os.ZygoteInit$MethodAndArgsCaller.run(ZygoteInit.java:726)
+	at com.android.internal.os.ZygoteInit.main(ZygoteInit.java:616)
+Caused by: java.lang.NullPointerException: Attempt to invoke virtual method 'char[] java.lang.String.toCharArray()' on a null object reference
+	at java.io.File.fixSlashes(File.java:183)
+	at java.io.File.<init>(File.java:130)
+	at org.ligi.satoshiproof.ImageFromIntentUriExtractor.extract(ImageFromIntentUriExtractor.kt:38)
+	at org.ligi.satoshiproof.MainActivity.handleSendStream$android_compileOnBitcoinReleaseKotlin(MainActivity.kt:79)
+	at org.ligi.satoshiproof.MainActivity.checkForMaterialToProveFromIntent(MainActivity.kt:63)
+	at org.ligi.satoshiproof.MainActivity.onCreate(MainActivity.kt:54)
+	at android.app.Activity.performCreate(Activity.java:6406)
+	at android.app.Instrumentation.callActivityOnCreate(Instrumentation.java:1108)
+	at android.app.ActivityThread.performLaunchActivity(ActivityThread.java:2369)
+	... 9 more
+Log: 
+ 0 D: Writing unhandled exception to: /data/user/0/org.ligi.satoshiproof/files/1.0.4-1499114054580.tracedroid
+1 D: current handler class=com.android.internal.os.RuntimeInit$UncaughtHandler
