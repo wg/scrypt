@@ -35,8 +35,8 @@ public class SCrypt {
      *
      * @param passwd    Password.
      * @param salt      Salt.
-     * @param N         CPU cost parameter.
-     * @param r         Memory cost parameter.
+     * @param N         CPU/memory cost parameter.
+     * @param r         Block size parameter.
      * @param p         Parallelization parameter.
      * @param dkLen     Intended length of the derived key.
      *
@@ -54,8 +54,8 @@ public class SCrypt {
      *
      * @param passwd    Password.
      * @param salt      Salt.
-     * @param N         CPU cost parameter.
-     * @param r         Memory cost parameter.
+     * @param N         CPU/memory cost parameter.
+     * @param r         Block size parameter.
      * @param p         Parallelization parameter.
      * @param dkLen     Intended length of the derived key.
      *
@@ -68,8 +68,8 @@ public class SCrypt {
      *
      * @param passwd    Password.
      * @param salt      Salt.
-     * @param N         CPU cost parameter.
-     * @param r         Memory cost parameter.
+     * @param N         CPU/memory cost parameter.
+     * @param r         Block size parameter.
      * @param p         Parallelization parameter.
      * @param dkLen     Intended length of the derived key.
      *

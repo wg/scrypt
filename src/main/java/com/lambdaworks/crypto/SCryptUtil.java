@@ -33,8 +33,8 @@ public class SCryptUtil {
      * in {@link SCryptUtil}.
      *
      * @param passwd    Password.
-     * @param N         CPU cost parameter.
-     * @param r         Memory cost parameter.
+     * @param N         CPU/memory cost parameter.
+     * @param r         Block size parameter.
      * @param p         Parallelization parameter.
      *
      * @return The hashed password.
